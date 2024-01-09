@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { FixedWindowCounterApp } from './app'
 
-describe('Fixed Window Counter Rate Limiter Tests', () => {
+describe('Fixed Window Counter Tests', () => {
   beforeEach(() => {
     // Mock time before each test
     vi.useFakeTimers()

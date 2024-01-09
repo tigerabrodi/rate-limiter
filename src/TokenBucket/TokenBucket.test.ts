@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 
 import { TokenBucketApp } from './app'
 
-describe('Rate Limiter Tests', () => {
+describe('Token Bucket', () => {
   it('/unlimited should allow unlimited requests', async () => {
     for (let i = 0; i < 20; i++) {
       const res = await supertest(TokenBucketApp).get('/unlimited')
