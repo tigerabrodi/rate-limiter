@@ -3,7 +3,7 @@ import express from 'express'
 import { slidingWindowRateLimitMiddleware } from './rateLimitMiddleware'
 
 export const SlidingWindowLogApp = express()
-const port = 6080
+const port = 5080
 
 SlidingWindowLogApp.get('/unlimited', (req, res) => {
   res.send("Unlimited! Let's Go!")

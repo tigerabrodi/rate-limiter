@@ -1,14 +1,6 @@
 import type express from 'express'
 
-import {
-  counters,
-  rateLimitWindowInSeconds,
-  requestLimitPerWindow,
-} from './data'
-
-const MILLIS_IN_SECOND = 1000
-const rateLimitWindowInMilliseconds =
-  rateLimitWindowInSeconds * MILLIS_IN_SECOND
+import { counters, rateLimitWindowInMs, requestLimitPerWindow } from './data'
 
 // Rate limiting middleware
 export const rateLimitMiddleware = (
@@ -34,7 +26,7 @@ export const rateLimitMiddleware = (
 
   if (windowCounter) {
     const difference = currentTime - windowCounter.startTime
-    const isGreaterThanWindow = difference > rateLimitWindowInMilliseconds
+    const isGreaterThanWindow = difference > rateLimitWindowInMs
 
     if (isGreaterThanWindow) {
       // Reset the counter for the new window

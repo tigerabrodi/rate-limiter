@@ -1,9 +1,6 @@
 import type express from 'express'
 
-import { requestLogs, requestThreshold, slidingWindowInSeconds } from './data'
-
-const MILLIS_IN_SECOND = 1000
-const slidingWindowInMilliseconds = slidingWindowInSeconds * MILLIS_IN_SECOND
+import { requestLogs, requestThreshold, slidingWindowInMs } from './data'
 
 export const slidingWindowRateLimitMiddleware = (
   req: express.Request,
@@ -28,7 +25,7 @@ export const slidingWindowRateLimitMiddleware = (
   if (log) {
     log.timestamps = log.timestamps.filter((timestamp) => {
       const difference = currentTime - timestamp
-      const isWithinWindow = difference <= slidingWindowInMilliseconds
+      const isWithinWindow = difference <= slidingWindowInMs
 
       return isWithinWindow
     })

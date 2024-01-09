@@ -3,6 +3,6 @@ type WindowCounter = {
   startTime: number
 }
 
-export const rateLimitWindowInSeconds = 60
+export const rateLimitWindowInMs = 60 * 1000
 export const requestLimitPerWindow = 10
 export const counters = new Map<string, WindowCounter>()
