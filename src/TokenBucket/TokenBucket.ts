@@ -17,6 +17,11 @@ export class TokenBucket {
     const now = Date.now()
     const timeSinceLastRefillInSeconds =
       (now - this.lastRefill) / SECONDS_CONVERSION
+
+    // Add new tokens to the bucket since the last refill
+    // Example: 10 tokens per second, 5 seconds since last refill = 50 new tokens
+    // But don't exceed the capacity of the bucket
+    // This way, if the bucket is not used for a long time, it will not be overflowing with tokens
     const newTokens = timeSinceLastRefillInSeconds * this.refillRatePerSeconds
     this.tokens = Math.min(this.capacity, this.tokens + newTokens)
     this.lastRefill = now
