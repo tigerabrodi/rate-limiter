@@ -103,5 +103,3 @@ The bucket has a capacity limit. If requests come in bursts, they can be accommo
 ## Refilling
 
 Tokens continue to be added at the fixed rate, refilling the bucket over time.
-
-# Leaky Bucket
