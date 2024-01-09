@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "start": "nodemon --watch 'src/**/*' -e ts --exec 'ts-node src/index.ts'",
+    "start-token-bucket": "nodemon --watch 'src/**/*' -e ts --exec 'ts-node src/TokenBucket/app.ts'",
     "test": "vitest"
   },
   "keywords": [],
@@ -13,6 +13,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^20.10.5",
+    "@types/supertest": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
     "eslint": "^8.55.0",
@@ -24,6 +25,7 @@
   },
   "dependencies": {
     "@types/express": "^4.17.21",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "supertest": "^6.3.3"
   }
 }

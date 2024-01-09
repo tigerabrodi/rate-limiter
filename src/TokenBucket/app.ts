@@ -2,10 +2,10 @@ import express from 'express'
 
 import { TokenBucket } from './TokenBucket'
 
-const app = express()
+export const TokenBucketApp = express()
 const port = 8080
 
-app.get('/unlimited', (req, res) => {
+TokenBucketApp.get('/unlimited', (req, res) => {
   res.send("Unlimited! Let's Go!")
 })
 
@@ -38,11 +38,11 @@ const rateLimitMiddleware = (
   }
 }
 
-app.get('/limited', rateLimitMiddleware, (req, res) => {
+TokenBucketApp.get('/limited', rateLimitMiddleware, (req, res) => {
   res.send("Limited, don't overuse me!")
 })
 
 // Start the server
-app.listen(port, () => {
+TokenBucketApp.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}/`)
 })
