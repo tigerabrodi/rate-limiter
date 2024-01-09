@@ -32,9 +32,8 @@ describe('Fixed Window Counter Rate Limiter Tests', () => {
 
   it('/limited should reject requests exceeding rate limit', async () => {
     const windowDurationInSeconds = 60
-    const rateLimit = 10 // Assuming rate limit is 10 requests
+    const rateLimit = 10
 
-    // Perform requests within rate limit
     for (let i = 0; i < rateLimit; i++) {
       await supertest(FixedWindowCounterApp).get('/limited')
     }
@@ -42,12 +41,14 @@ describe('Fixed Window Counter Rate Limiter Tests', () => {
     // Advance time to simulate end of rate limit window
     vi.advanceTimersByTime(windowDurationInSeconds * 1000)
 
-    // One more request should be allowed as the window has reset
-    const res = await supertest(FixedWindowCounterApp).get('/limited')
-    expect(res.statusCode).toBe(200)
+    // Make requests within the new window
+    for (let i = 0; i < rateLimit; i++) {
+      const res = await supertest(FixedWindowCounterApp).get('/limited')
+      expect(res.statusCode).toBe(200)
+    }
 
-    // Another request should be rejected as the rate limit has been exceeded
-    const res2 = await supertest(FixedWindowCounterApp).get('/limited')
-    expect(res2.statusCode).toBe(429)
+    // The next request should be rejected as the rate limit has been exceeded in the new window
+    const resExceeded = await supertest(FixedWindowCounterApp).get('/limited')
+    expect(resExceeded.statusCode).toBe(429)
   })
 })
