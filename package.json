@@ -7,6 +7,7 @@
     "build": "tsc",
     "start-token-bucket": "nodemon --watch 'src/**/*' -e ts --exec 'ts-node src/TokenBucket/app.ts'",
     "start-fixed-window-counter": "nodemon --watch 'src/**/*' -e ts --exec 'ts-node src/FixedWindowCounter/app.ts'",
+    "start-sliding-window-log": "nodemon --watch 'src/**/*' -e ts --exec 'ts-node src/SlidingWindowLog/app.ts'",
     "test": "vitest"
   },
   "keywords": [],
