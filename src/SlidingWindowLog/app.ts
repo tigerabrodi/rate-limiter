@@ -1,6 +1,6 @@
 import express from 'express'
 
-import { slidingWindowRateLimitMiddleware } from './slidingWindowRateLimitMiddleware'
+import { slidingWindowRateLimitMiddleware } from './rateLimitMiddleware'
 
 export const SlidingWindowLogApp = express()
 const port = 6080
