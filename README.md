@@ -72,34 +72,6 @@ This can be better than returning 429 error to client. It's a trick to fool atta
 
 Imagine a movie theater that sells tickets for each show. They have a policy: only 100 tickets can be sold per hour. This is to manage the crowd and ensure a comfortable experience for everyone. Each hour is a 'window' of time. At the start of each hour (say, 2 PM), the ticket count resets, regardless of how many were sold in the previous hour. If they reach 100 tickets at 2:45 PM, no more tickets are sold until 3 PM, when the next window starts.
 
-## Request Counting
-
-Each request increments a counter associated with the current time window.
-
-## Limit Enforcement
-
-Once the number of requests reaches the predefined limit for that window, further requests are blocked or queued until the next window starts.
-
-## Reset Mechanism
-
-The counter resets to zero at the beginning of each new time window, regardless of the number of requests in the previous window.
-
 # Token Bucket
 
 Imagine you have a bucket that is being filled with water at a constant rate through a tap. Each time you need water, you take a cup and scoop out some water from the bucket. The bucket represents your token bucket, and the water is the tokens. You can only scoop as much water as is available in the bucket. If the bucket is empty, you must wait until it fills up again to scoop more water. The rate at which the bucket fills up with water is the rate at which tokens are added to your bucket.
-
-## Token Allocation
-
-Tokens are added to the bucket at a steady rate.
-
-## Request handling
-
-Each incoming request costs a token. If enough tokens are available, the request is processed, and the corresponding number of tokens is removed from the bucket.
-
-## Burst Handling
-
-The bucket has a capacity limit. If requests come in bursts, they can be accommodated up to the capacity of the bucket.
-
-## Refilling
-
-Tokens continue to be added at the fixed rate, refilling the bucket over time.
