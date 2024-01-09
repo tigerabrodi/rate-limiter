@@ -1,11 +1,12 @@
 {
-  "name": "dns-resolver",
+  "name": "rate-limiter",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "build": "tsc",
     "start-token-bucket": "nodemon --watch 'src/**/*' -e ts --exec 'ts-node src/TokenBucket/app.ts'",
+    "start-fixed-window-counter": "nodemon --watch 'src/**/*' -e ts --exec 'ts-node src/FixedWindowCounter/app.ts'",
     "test": "vitest"
   },
   "keywords": [],
