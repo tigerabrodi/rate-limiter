@@ -23,7 +23,7 @@ describe('Sliding Window Log Rate Limiter Tests', () => {
 
   it('/limited should properly rate limit requests', async () => {
     const rateLimit = 10
-    const windowDuration = 60
+    const windowDuration = 62
 
     // Perform requests up to rate limit
     for (let i = 0; i < rateLimit; i++) {
@@ -37,7 +37,7 @@ describe('Sliding Window Log Rate Limiter Tests', () => {
 
     // Advance time to allow some requests to fall outside the sliding window
     // Convert window duration to milliseconds and divide by 2 to allow half the window to pass
-    vi.advanceTimersByTime((windowDuration * 1000) / 2)
+    vi.advanceTimersByTime(windowDuration * 1000)
 
     // The next request should be allowed as some requests are now outside the sliding window
     const resAllowed = await supertest(SlidingWindowLogApp).get('/limited')

@@ -1,5 +1,7 @@
 import express from 'express'
 
+import { slidingWindowRateLimitMiddleware } from './slidingWindowRateLimitMiddleware'
+
 export const SlidingWindowLogApp = express()
 const port = 6080
 
@@ -7,9 +9,13 @@ SlidingWindowLogApp.get('/unlimited', (req, res) => {
   res.send("Unlimited! Let's Go!")
 })
 
-SlidingWindowLogApp.get('/limited', (req, res) => {
-  res.send("Limited, don't overuse me!")
-})
+SlidingWindowLogApp.get(
+  '/limited',
+  slidingWindowRateLimitMiddleware,
+  (req, res) => {
+    res.send("Limited, don't overuse me!")
+  }
+)
 
 // Start the server
 SlidingWindowLogApp.listen(port, () => {
