@@ -5,9 +5,15 @@
 ## Code
 
 <details>
-  <summary>Fixed Window Counter</summary>
+  <summary>🍿 Fixed Window Counter</summary>
 
-  
+  How it works:
+  1. Get IP of the one who requested.
+  2. If IP doesn't exist, set a new value in `counters`.
+  3. If IP exists. Check time difference.
+  4. If difference between current and start time of IP's counter is greater than the rate limit window -> We reset the counter.
+  5. OR If counter has not reached the request limit, increment it.
+  6. ELSE Tell client 429, too many requests.
 
   ```ts
 export const rateLimitMiddleware = (
