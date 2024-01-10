@@ -7,6 +7,7 @@
 <details>
   <summary>🍿 Fixed Window Counter</summary>
 
+---
 
   How it works:
   1. Get IP of the one who requested.
@@ -65,6 +66,7 @@ export const rateLimitMiddleware = (
 <details>
   <summary>🍿 Token Bucket</summary>
 
+---
 
   How it works:
   1. Each user has a bucket.
