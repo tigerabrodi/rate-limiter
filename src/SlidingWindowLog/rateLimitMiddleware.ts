@@ -2,7 +2,7 @@ import type express from 'express'
 
 import { requestLogs, requestThreshold, slidingWindowInMs } from './data'
 
-export const slidingWindowRateLimitMiddleware = (
+export const rateLimitMiddleware = (
   req: express.Request,
   res: express.Response,
   next: express.NextFunction
