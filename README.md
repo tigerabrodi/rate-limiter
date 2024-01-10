@@ -2,17 +2,32 @@
 
 ## How to try it
 
+Clone it.
+
+Run `npm install`.
+
+We got 4 different mini "projects".
+
+To start different servers:
+
+1. Fixed Window Counter -> `npm run start-fixed-window-counter`
+2. Token Bucket -> `npm run start-token-bucket`
+3. Sliding Window Log -> `npm run start-sliding-window-log`
+4. Sliding Window Counter -> `npm run start-sliding-window-counter`
+
 ## Tests
 
 Tests have been written for every strategy.
 
 The cool part is how amazing it was.
 
-With `supertest` and `vitest`, you can write blazing fast integration tests.
+With `supertest` and `vitest`, you can write blazing fast tests for APIs.
 
 TDD works well here! 🤩
 
-## Code
+Just run `npm run test`.
+
+## Code 💻
 
 <details>
   <summary>🍿 Fixed Window Counter</summary>
@@ -177,7 +192,7 @@ export const rateLimitMiddleware = (
   **Analogy:** Imagine a concert where a security guard logs the time each guest enters. The venue allows only 500 people per hour for safety. Throughout the event, the guard constantly checks the log to ensure no more than 500 people have entered in any rolling hour. If there are too many entries in the last hour, new guests must wait until the count falls below 500.
 
   ```ts
-export const slidingWindowRateLimitMiddleware = (
+export const rateLimitMiddleware = (
   req: express.Request,
   res: express.Response,
   next: express.NextFunction
@@ -214,6 +229,84 @@ export const slidingWindowRateLimitMiddleware = (
       // Rate limit exceeded
       res.status(429).send('Too Many Requests')
     }
+  }
+}
+  ```
+</details>
+
+<details>
+  <summary>🍿 Sliding Window Counter</summary>
+
+---
+
+  How it works:
+  This is a bit different from the Sliding Window Log. It's less memory intensive as we only keep track of a counter and the last request timestamp. It's a mixture of Sliding Window Log and Fixed Window Counter. 🍹
+
+  1. For every IP, we keep track of the counter and the last request's timestamp.
+  2. If a log already exists, we do a couple of checks.
+  3. If the difference between last request's time and current time is greater than `slidingWindowInMs`, then we've to reset the counter. This would mean `slidingWindowInMs` e.g. 60 seconds, has passed since last request. Within `slidingWindowInMs`, we let maximum `requestThreshold` number of requests.
+  4. **If that is not the case:** We want to figure out the amount to decrement from the counter.
+  5. Check if updated `counter` is greater than the `requestThreshold`.
+  6. If it is -> `429` response.
+  7. If not, we move forward!
+
+  **Analogy:** A coffee shop serves a maximum of 100 cups per hour. Instead of tracking each order's time, they keep a running tally of the last hour's orders. After each new order, they adjust this tally, considering only the past hour from the current time. If the tally reaches 100, they pause new orders until the count drops as the window moves forward.
+
+  ```ts
+export const rateLimitMiddleware = (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
+  const ip = req.ip
+  if (!ip) {
+    res.status(500).send('No IP address found on request')
+    return
+  }
+
+  if (!requestLogs.has(ip)) {
+    requestLogs.set(ip, { counter: 1, lastRequestTimestamp: Date.now() })
+    next()
+    return
+  }
+
+  const currentTime = Date.now()
+  const log = requestLogs.get(ip)
+
+  if (log) {
+    const timeElapsed = currentTime - log.lastRequestTimestamp
+    const shouldResetCounter = timeElapsed > slidingWindowInMs
+
+    if (shouldResetCounter) {
+      log.counter = 1
+    } else {
+      // Calculate the decrement amount based on the time elapsed
+      // Example: Sliding window is 60 seconds, in milliseconds that is 60000
+      // reqThreshold is 10
+      // This equals to 60000 / 10 = 6000
+      // Let's say timeElapsed is 30000, that means 30 seconds have passed
+      // 30000 / 6000 = 5
+      // So we decrement the counter by 5
+      // This effectively calculates the number of requests that are outside of the sliding window
+      // Those requests are no longer counted towards the rate limit (expired)
+      const decrementAmount = Math.floor(
+        timeElapsed / (slidingWindowInMs / requestThreshold)
+      )
+
+      // `Math.max` is used to ensure the counter never goes below 0
+      log.counter = Math.max(0, log.counter - decrementAmount)
+    }
+
+    log.lastRequestTimestamp = currentTime
+
+    const shouldBlockRequest = log.counter >= requestThreshold
+    if (shouldBlockRequest) {
+      res.status(429).send('Too many requests')
+      return
+    }
+
+    log.counter++
+    next()
   }
 }
   ```
