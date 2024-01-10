@@ -5,6 +5,9 @@ import { TokenBucket } from './TokenBucket'
 // Store token buckets for each IP
 const buckets = new Map<string, TokenBucket>()
 
+export const capacity = 10
+export const refillRate = 1
+
 export const rateLimitMiddleware = (
   req: express.Request,
   res: express.Response,
@@ -19,7 +22,7 @@ export const rateLimitMiddleware = (
 
   const hasIpNoBucket = !buckets.has(ip)
   if (hasIpNoBucket) {
-    buckets.set(ip, new TokenBucket(10, 1)) // Example: 10 tokens, refill 1 token/sec
+    buckets.set(ip, new TokenBucket(capacity, refillRate)) // Example: 10 tokens, refill 1 token/sec
   }
 
   const bucket = buckets.get(ip)
