@@ -2,6 +2,16 @@
 
 ## How to try it
 
+## Tests
+
+Tests have been written for every strategy.
+
+The cool part is how amazing it was.
+
+With `supertest` and `vitest`, you can write blazing fast integration tests.
+
+TDD works well here! 🤩
+
 ## Code
 
 <details>
