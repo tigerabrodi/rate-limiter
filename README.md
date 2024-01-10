@@ -15,6 +15,8 @@
   5. OR If counter has not reached the request limit, increment it.
   6. ELSE Tell client 429, too many requests.
 
+  Analogy for clarification: Imagine a movie theater that sells tickets for each show. They have a policy: only 100 tickets can be sold per hour. This is to manage the crowd and ensure a comfortable experience for everyone. Each hour is a 'window' of time. At the start of each hour (say, 2 PM), the ticket count resets, regardless of how many were sold in the previous hour. If they reach 100 tickets at 2:45 PM, no more tickets are sold until 3 PM, when the next window starts.
+
   ```ts
 export const rateLimitMiddleware = (
   req: express.Request,
@@ -63,15 +65,15 @@ export const rateLimitMiddleware = (
   <summary>🍿 Token Bucket</summary>
 
   How it works:
-  Token Bucket is a bit more difficult to understand. However, we can clarify it with an analogy. Imagine you have a bucket that is being filled with water at a constant rate through a tap. Each time you need water, you take a cup and scoop out some water from the bucket. The bucket represents your token bucket, and the water is the tokens. You can only scoop as much water as is available in the bucket. If the bucket is empty, you must wait until it fills up again to scoop more water. The rate at which the bucket fills up with water is the rate at which tokens are added to your bucket.
-
-  At a high level:
   1. Each user has a bucket.
   2. When they make requests, we decrement some of their tokens.
   3. Every time they make requests, we try to refill the tokens.
   4. The refilling logic however is tied to the last time they refilled the bucket.
   5. An example would be if a user spams the requests, at some point `timeSinceLastRefillInSeconds` will be less than 1 if not 0.
   6. This would result in no new tokens being added.
+
+  Analogy for clarification: Token Bucket is a bit more difficult to understand. However, we can clarify it with an analogy. Imagine you have a bucket that is being filled with water at a constant rate through a tap. Each time you need water, you take a cup and scoop out some water from the bucket. The bucket represents your token bucket, and the water is the tokens. You can only scoop as much water as is available in the bucket. If the bucket is empty, you must wait until it fills up again to scoop more water. The rate at which the bucket fills up with water is the rate at which tokens are added to your bucket.
+
 
 
   ```ts
@@ -210,11 +212,3 @@ This can be better than returning 429 error to client. It's a trick to fool atta
 - **Use Case**: When losing requests is not acceptable, and delays are tolerable.
 - **Pros**: No request is outright rejected.
 - **Cons**: Can lead to high latency and resource consumption if the queue becomes too long.
-
-# Fixed Window Counter
-
-Imagine a movie theater that sells tickets for each show. They have a policy: only 100 tickets can be sold per hour. This is to manage the crowd and ensure a comfortable experience for everyone. Each hour is a 'window' of time. At the start of each hour (say, 2 PM), the ticket count resets, regardless of how many were sold in the previous hour. If they reach 100 tickets at 2:45 PM, no more tickets are sold until 3 PM, when the next window starts.
-
-# Token Bucket
-
-Imagine you have a bucket that is being filled with water at a constant rate through a tap. Each time you need water, you take a cup and scoop out some water from the bucket. The bucket represents your token bucket, and the water is the tokens. You can only scoop as much water as is available in the bucket. If the bucket is empty, you must wait until it fills up again to scoop more water. The rate at which the bucket fills up with water is the rate at which tokens are added to your bucket.
