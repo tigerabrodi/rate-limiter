@@ -17,7 +17,7 @@
   5. OR If counter has not reached the request limit, increment it.
   6. ELSE Tell client 429, too many requests.
 
-  Analogy for clarification: Imagine a movie theater that sells tickets for each show. They have a policy: only 100 tickets can be sold per hour. This is to manage the crowd and ensure a comfortable experience for everyone. Each hour is a 'window' of time. At the start of each hour (say, 2 PM), the ticket count resets, regardless of how many were sold in the previous hour. If they reach 100 tickets at 2:45 PM, no more tickets are sold until 3 PM, when the next window starts.
+  **Analogy:** Imagine a movie theater that sells tickets for each show. They have a policy: only 100 tickets can be sold per hour. This is to manage the crowd and ensure a comfortable experience for everyone. Each hour is a 'window' of time. At the start of each hour (say, 2 PM), the ticket count resets, regardless of how many were sold in the previous hour. If they reach 100 tickets at 2:45 PM, no more tickets are sold until 3 PM, when the next window starts.
 
   ```ts
 export const rateLimitMiddleware = (
@@ -76,7 +76,7 @@ export const rateLimitMiddleware = (
   5. An example would be if a user spams the requests, at some point `timeSinceLastRefillInSeconds` will be less than 1 if not 0.
   6. This would result in no new tokens being added.
 
-  Analogy for clarification: Token Bucket is a bit more difficult to understand. However, we can clarify it with an analogy. Imagine you have a bucket that is being filled with water at a constant rate through a tap. Each time you need water, you take a cup and scoop out some water from the bucket. The bucket represents your token bucket, and the water is the tokens. You can only scoop as much water as is available in the bucket. If the bucket is empty, you must wait until it fills up again to scoop more water. The rate at which the bucket fills up with water is the rate at which tokens are added to your bucket.
+  **Analogy:** Token Bucket is a bit more difficult to understand. However, we can clarify it with an analogy. Imagine you have a bucket that is being filled with water at a constant rate through a tap. Each time you need water, you take a cup and scoop out some water from the bucket. The bucket represents your token bucket, and the water is the tokens. You can only scoop as much water as is available in the bucket. If the bucket is empty, you must wait until it fills up again to scoop more water. The rate at which the bucket fills up with water is the rate at which tokens are added to your bucket.
 
 
 
@@ -144,6 +144,66 @@ export const rateLimitMiddleware = (
     next()
   } else {
     res.status(429).send('Too Many Requests')
+  }
+}
+  ```
+</details>
+
+<details>
+  <summary>🍿 Sliding Window Log</summary>
+
+---
+
+  How it works:
+  1. For each IP, we keep track of requests' timestamps.
+  2. We check if log exists. If not, we set initial value.
+  3. If it does exist, we check all timestamps in the log.
+  4. `slidingWindowInMs` -> Window of time we allow requests.
+  5. `requestThreshold` -> The maximum number of requests we accept within the window.
+  6. We filter out all timestamps outside the window.
+  7. Check length is less than threshold.
+  8. If not, tell user `429`, too many requests.
+
+  **Analogy:** Imagine a concert where a security guard logs the time each guest enters. The venue allows only 500 people per hour for safety. Throughout the event, the guard constantly checks the log to ensure no more than 500 people have entered in any rolling hour. If there are too many entries in the last hour, new guests must wait until the count falls below 500.
+
+  ```ts
+export const slidingWindowRateLimitMiddleware = (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
+  const ip = req.ip
+  if (!ip) {
+    res.status(500).send('No IP address found on request')
+    return
+  }
+
+  if (!requestLogs.has(ip)) {
+    requestLogs.set(ip, { timestamps: [Date.now()] })
+    next()
+    return
+  }
+
+  const currentTime = Date.now()
+  const log = requestLogs.get(ip)
+
+  if (log) {
+    log.timestamps = log.timestamps.filter((timestamp) => {
+      const difference = currentTime - timestamp
+      const isWithinWindow = difference <= slidingWindowInMs
+
+      return isWithinWindow
+    })
+
+    if (log.timestamps.length < requestThreshold) {
+      // Allow request
+      log.timestamps.push(currentTime)
+
+      next()
+    } else {
+      // Rate limit exceeded
+      res.status(429).send('Too Many Requests')
+    }
   }
 }
   ```
