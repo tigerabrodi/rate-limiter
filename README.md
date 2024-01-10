@@ -59,6 +59,90 @@ export const rateLimitMiddleware = (
   ```
 </details>
 
+<details>
+  <summary>🍿 Token Bucket</summary>
+
+  How it works:
+  Token Bucket is a bit more difficult to understand. However, we can clarify it with an analogy. Imagine you have a bucket that is being filled with water at a constant rate through a tap. Each time you need water, you take a cup and scoop out some water from the bucket. The bucket represents your token bucket, and the water is the tokens. You can only scoop as much water as is available in the bucket. If the bucket is empty, you must wait until it fills up again to scoop more water. The rate at which the bucket fills up with water is the rate at which tokens are added to your bucket.
+
+  At a high level:
+  1. Each user has a bucket.
+  2. When they make requests, we decrement some of their tokens.
+  3. Every time they make requests, we try to refill the tokens.
+  4. The refilling logic however is tied to the last time they refilled the bucket.
+  5. An example would be if a user spams the requests, at some point `timeSinceLastRefillInSeconds` will be less than 1 if not 0.
+  6. This would result in no new tokens being added.
+
+
+  ```ts
+// Class
+export class TokenBucket {
+  capacity: number
+  tokens: number
+  refillRatePerSeconds: number
+  lastRefill: number
+
+  constructor(capacity: number, refillRate: number) {
+    this.capacity = capacity
+    this.tokens = capacity
+    this.refillRatePerSeconds = refillRate
+    this.lastRefill = Date.now()
+  }
+
+  refill() {
+    const now = Date.now()
+    const timeSinceLastRefillInSeconds =
+      (now - this.lastRefill) / SECONDS_CONVERSION
+
+    // Add new tokens to the bucket since the last refill
+    // Example: 10 tokens per second, 5 seconds since last refill = 50 new tokens
+    // But don't exceed the capacity of the bucket
+    // This way, if the bucket is not used for a long time, it will not be overflowing with tokens
+    const newTokens = timeSinceLastRefillInSeconds * this.refillRatePerSeconds
+    this.tokens = Math.min(this.capacity, this.tokens + newTokens)
+    this.lastRefill = now
+  }
+
+  allowRequest(): boolean {
+    this.refill()
+    if (this.tokens >= 1) {
+      this.tokens -= 1
+      return true
+    }
+    return false
+  }
+}
+
+// Usage
+const buckets = new Map<string, TokenBucket>()
+
+export const rateLimitMiddleware = (
+  req: express.Request,
+  res: express.Response,
+  next: express.NextFunction
+) => {
+  const ip = req.ip
+
+  if (!ip) {
+    res.status(500).send('No IP address found on request')
+    return
+  }
+
+  const hasIpNoBucket = !buckets.has(ip)
+  if (hasIpNoBucket) {
+    buckets.set(ip, new TokenBucket(10, 1)) // Example: 10 tokens, refill 1 token/sec
+  }
+
+  const bucket = buckets.get(ip)
+  if (bucket && bucket.allowRequest()) {
+    next()
+  } else {
+    res.status(429).send('Too Many Requests')
+  }
+}
+  ```
+</details>
+
 # What is a Rate Limiter?
 
 A rate limiter is a tool that monitors the number of requests per unit of time that a client IP can send to an API endpoint. If the number of requests exceeds a certain threshold, the rate limiter will block the client IP from sending further requests for a certain period of time.
