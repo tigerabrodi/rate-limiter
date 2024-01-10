@@ -27,6 +27,12 @@ TDD works well here! 🤩
 
 Just run `npm run test`.
 
+## Performance Testing with Postman
+
+If you want to test with virtual concurrent users, you can use Postman. [Read here.](https://blog.postman.com/postman-api-performance-testing/)
+
+![Screenshot 2024-01-09 at 07 46 48](https://github.com/narutosstudent/rate-limiter/assets/49603590/d00c6c34-6106-4d63-b721-26ccccd34cda)
+
 ## Code 💻
 
 <details>
