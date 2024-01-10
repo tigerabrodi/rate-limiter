@@ -7,6 +7,7 @@
 <details>
   <summary>🍿 Fixed Window Counter</summary>
 
+
   How it works:
   1. Get IP of the one who requested.
   2. If IP doesn't exist, set a new value in `counters`.
@@ -63,6 +64,7 @@ export const rateLimitMiddleware = (
 
 <details>
   <summary>🍿 Token Bucket</summary>
+
 
   How it works:
   1. Each user has a bucket.
